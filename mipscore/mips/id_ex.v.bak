@@ -1,0 +1,93 @@
+`include "defines.v"
+
+module id_ex(
+
+	//从译码阶段传递的信息
+	input [`AluOpBusWidth-1:0]         id_aluop,
+	input [`AluSelBusWidth-1:0]        id_alusel,
+	input [`RegWidth-1:0]              id_reg1,
+	input [`RegWidth-1:0]              id_reg2,
+	input [`RegAddrBusWidth-1:0]       id_wd,
+	input                              id_wreg,	
+    input                              id_wreg_hi,
+	input                              id_wreg_lo,
+	input [`RegWidth-1:0]              id_reghi,
+	input [`RegWidth-1:0]              id_reglo,
+	input                              id_wreg_LLbit,
+	input                              id_regLLbit,
+	input [`RegAddrBusWidth-1:0]       id_wd_cp0,
+	input                              id_wreg_cp0,
+	input [`InstAddrBusWidth-1:0]	   id_pc,
+	input                              id_pc_flush,
+	input [`RegWidth-1:0]              id_offset,
+
+	//传递到执行阶段的信息
+	output [`AluOpBusWidth-1:0]         ex_aluop,
+	output [`AluSelBusWidth-1:0]        ex_alusel,
+	output [`RegWidth-1:0]              ex_reg1,
+	output [`RegWidth-1:0]              ex_reg2,
+	output [`RegAddrBusWidth-1:0]       ex_wd,
+	output                              ex_wreg,
+    output                              ex_wreg_hi,
+	output                              ex_wreg_lo,
+	output [`RegWidth-1:0]              ex_reghi,
+	output [`RegWidth-1:0]              ex_reglo,
+	output                              ex_wreg_LLbit,
+	output                              ex_regLLbit,
+    output [`RegAddrBusWidth-1:0]       ex_wd_cp0,
+	output                              ex_wreg_cp0,
+	output [`InstAddrBusWidth-1:0]	    ex_pc,
+	output                              ex_pc_flush,
+	output [`RegWidth-1:0]              ex_offset,
+	
+	input  [5:0]                        pause,
+	input                               oitf_match,
+    input                               oitf_hi_match,
+    input                               oitf_lo_match,
+    input                               oitf_LLbit_match,
+	input                               oitf_cp0_match,
+
+	//output  [`InstAddrBusWidth-1:0]        pc_jump,
+	output                                 pc_flush,
+
+	input	wire							clk,
+	input wire								rst_n
+);
+
+wire id_ex_en;
+assign id_ex_en = (~pause[3]);
+wire data_enable = (~oitf_match)&(~pause[2]);
+wire data_hi_enable = (~oitf_hi_match)&(~pause[2]);
+wire data_lo_enable = (~oitf_lo_match)&(~pause[2]);
+wire data_LLbit_enable = (~oitf_LLbit_match)&(~pause[2]);
+wire data_cp0_enable = (~oitf_cp0_match)&(~pause[2]);
+//wire data_enable_all = data_enable|data_hi_enable|data_lo_enable|data_LLbit_enable|data_cp0_enable;
+wire data_enable_all = data_enable&data_hi_enable&data_lo_enable&data_LLbit_enable&data_cp0_enable;
+
+
+gnrl_dfflr #(`AluOpBusWidth)    aluop_dfflr (data_enable_all, id_aluop, ex_aluop, clk, rst_n);
+gnrl_dfflr #(`AluSelBusWidth)   alusel_dfflr (data_enable_all, id_alusel, ex_alusel, clk, rst_n);
+gnrl_dfflr #(`RegWidth)    reg1_dfflr (data_enable_all, id_reg1, ex_reg1, clk, rst_n);
+gnrl_dfflr #(`RegWidth)    reg2_dfflr (data_enable_all, id_reg2, ex_reg2, clk, rst_n);
+gnrl_dfflr #(`RegAddrBusWidth)    wd_dfflr (data_enable_all, id_wd, ex_wd, clk, rst_n);
+gnrl_dfflr #(1)    wreg_dfflr (data_enable_all, id_wreg, ex_wreg, clk, rst_n);
+
+gnrl_dfflr #(1)    wreg_hi_dfflr (data_enable_all, id_wreg_hi, ex_wreg_hi, clk, rst_n);
+gnrl_dfflr #(1)    wreg_lo_dfflr (data_enable_all, id_wreg_lo, ex_wreg_lo, clk, rst_n);
+gnrl_dfflr #(`RegWidth)    reghi_dfflr (data_enable_all, id_reghi, ex_reghi, clk, rst_n);
+gnrl_dfflr #(`RegWidth)    reglo_dfflr (data_enable_all, id_reglo, ex_reglo, clk, rst_n);
+
+gnrl_dfflr #(`InstAddrBusWidth)    pc_dfflr (data_enable_all, id_pc, ex_pc, clk, rst_n);
+gnrl_dfflr #(1)    pc_flush_dfflr (data_enable_all, id_pc_flush, ex_pc_flush, clk, rst_n);
+gnrl_dfflr #(`RegWidth)    offset_dfflr (data_enable_all, id_offset, ex_offset, clk, rst_n);
+
+gnrl_dfflr #(1)    LLbit_dfflr (data_enable_all, id_regLLbit, ex_regLLbit, clk, rst_n);
+gnrl_dfflr #(1)    wreg_LLbit_dfflr (data_enable_all, id_wreg_LLbit, ex_wreg_LLbit, clk, rst_n);
+
+gnrl_dfflr #(`RegAddrBusWidth)    wd_cp0_dfflr (data_enable_all, id_wd_cp0, ex_wd_cp0, clk, rst_n);
+gnrl_dfflr #(1)    wreg_cp0_dfflr (data_enable_all, id_wreg_cp0, ex_wreg_cp0, clk, rst_n);
+
+
+
+
+endmodule
