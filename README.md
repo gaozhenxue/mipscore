@@ -1,2 +1,2 @@
 # mipscore
-使用Verilog实现的32位MIPS架构CPU
+使用Verilog实现的32位MIPS架构CPU,并移植ucos到CPU进行运行
