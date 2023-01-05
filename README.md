@@ -16,6 +16,6 @@
 * 仿真
 *     使用Xilinx公司vivado2018.3
 * 原型验证
-*     FPGA开发板一块,为正点原子领航者ZYNQ7020
+*     FPGA开发板一块,为正点原子领航者ZYNQ7020,CPU运行程序不使用传统串口进行下载，使用ZYNQ中PS-PL接口中GP接口进行下载运行程序
 * 测试文件以及ucos编译
 *     Ubuntu下使用编译器为mips-sde-elf-gcc
